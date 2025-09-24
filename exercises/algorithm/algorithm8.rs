@@ -51,16 +51,14 @@ impl<T> Default for Queue<T> {
     }
 }
 
-pub struct myStack<T>
+pub struct MyStack<T>
 {
-	//TODO
 	q1:Queue<T>,
 	q2:Queue<T>
 }
-impl<T> myStack<T> {
+impl<T> MyStack<T> {
     pub fn new() -> Self {
         Self {
-			//TODO
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
@@ -74,17 +72,21 @@ impl<T> myStack<T> {
         }
         
         // 将 q1 中除了最后一个元素之外的所有元素移到 q2
-        while self.q1.elements.len() > 1 {
+        while self.q1.size() > 1 {
             if let Ok(elem) = self.q1.dequeue() {
                 self.q2.enqueue(elem);
             }
         }
         
         // 取出 q1 中的最后一个元素（即栈顶元素）
-        let result = self.q1.dequeue();
-        
-        // 交换 q1 和 q2
-        std::mem::swap(&mut self.q1, &mut self.q2);
+        let result = match self.q1.dequeue() {
+            Ok(elem) => {
+                // 交换 q1 和 q2
+                std::mem::swap(&mut self.q1, &mut self.q2);
+                Ok(elem)
+            }
+            Err(_) => Err("Stack is empty") // 使用字符串字面量避免借用问题
+        };
         
         result
     }
@@ -99,7 +101,7 @@ mod tests {
 	
 	#[test]
 	fn test_queue(){
-		let mut s = myStack::<i32>::new();
+		let mut s = MyStack::<i32>::new();
 		assert_eq!(s.pop(), Err("Stack is empty"));
         s.push(1);
         s.push(2);
