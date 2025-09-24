@@ -61,7 +61,10 @@ where
         let left = self.left_child_idx(idx);
         let right = self.right_child_idx(idx);
         
-        if right > self.count {
+        if left > self.count {
+            // 没有子节点，这种情况不应该发生，但为了安全起见
+            idx
+        } else if right > self.count {
             // 只有左子节点
             left
         } else {
@@ -123,16 +126,18 @@ where
         
         // 取出根节点（堆顶）
         let result = std::mem::replace(&mut self.items[1], T::default());
+        self.count -= 1;
         
-        if self.count > 1 {
+        if self.count > 0 {
             // 将最后一个元素移到根节点
-            self.items[1] = self.items.pop().unwrap();
+            let last_element = self.items.pop().unwrap();
+            self.items[1] = last_element;
             self.heapify_down(1);
         } else {
+            // 如果堆变空了，移除最后一个元素（索引1的元素）
             self.items.pop();
         }
         
-        self.count -= 1;
         Some(result)
     }
 }

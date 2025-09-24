@@ -27,9 +27,6 @@ impl Graph for UndirectedGraph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>> {
         &self.adjacency_table
     }
-    fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        <Self as Graph>::add_edge(self, edge);
-    }
 }
 pub trait Graph {
     fn new() -> Self;
@@ -50,16 +47,21 @@ pub trait Graph {
         self.add_node(from);
         self.add_node(to);
         
-        // 添加边
-        self.adjacency_table_mutable()
-            .get_mut(from)
-            .unwrap()
-            .push((to.to_string(), weight));
+        // 获取节点的实际键引用
+        let from_key = from.to_string();
+        let to_key = to.to_string();
         
+        // 添加边 from -> to
         self.adjacency_table_mutable()
-            .get_mut(to)
+            .get_mut(&from_key)
             .unwrap()
-            .push((from.to_string(), weight));
+            .push((to_key.clone(), weight));
+        
+        // 添加边 to -> from  
+        self.adjacency_table_mutable()
+            .get_mut(&to_key)
+            .unwrap()
+            .push((from_key, weight));
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
@@ -70,8 +72,11 @@ pub trait Graph {
     fn edges(&self) -> Vec<(&String, &String, i32)> {
         let mut edges = Vec::new();
         for (from_node, from_node_neighbours) in self.adjacency_table() {
-            for (to_node, weight) in from_node_neighbours {
-                edges.push((from_node, to_node, *weight));
+            for (to_node_name, weight) in from_node_neighbours {
+                // 找到to_node在adjacency_table中的键引用
+                if let Some(to_node_key) = self.adjacency_table().keys().find(|k| k.as_str() == to_node_name) {
+                    edges.push((from_node, to_node_key, *weight));
+                }
             }
         }
         edges
