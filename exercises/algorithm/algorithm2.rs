@@ -2,11 +2,9 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -72,8 +70,34 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn reverse(&mut self){
-		// TODO
+	pub fn reverse(&mut self) {
+		// 如果链表为空或只有一个节点，直接返回
+		if self.length <= 1 {
+			return;
+		}
+
+		let mut current = self.start;
+		
+		// 遍历链表，交换每个节点的 prev 和 next 指针
+		while let Some(curr_ptr) = current {
+			unsafe {
+				let node = curr_ptr.as_ptr();
+				// 保存下一个节点（在交换前）
+				let next = (*node).next;
+				
+				// 交换当前节点的 prev 和 next
+				(*node).next = (*node).prev;
+				(*node).prev = next;
+				
+				// 移动到下一个节点（原来的 next，现在在 prev 中）
+				current = next;
+			}
+		}
+		
+		// 交换链表的 start 和 end 指针
+		let temp = self.start;
+		self.start = self.end;
+		self.end = temp;
 	}
 }
 
