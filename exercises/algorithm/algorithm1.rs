@@ -2,11 +2,9 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -69,14 +67,53 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+	where
+		T: PartialOrd + Clone,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
+		let mut result = LinkedList::<T>::new();
+		let mut idx_a = 0;
+		let mut idx_b = 0;
+
+		// 合并两个有序链表
+		while idx_a < list_a.length as i32 && idx_b < list_b.length as i32 {
+			let val_a = list_a.get(idx_a);
+			let val_b = list_b.get(idx_b);
+
+			match (val_a, val_b) {
+				(Some(a), Some(b)) => {
+					if a <= b {
+						result.add(a.clone());
+						idx_a += 1;
+					} else {
+						result.add(b.clone());
+						idx_b += 1;
+					}
+				}
+				_ => break,
+			}
+		}
+
+		// 添加剩余的元素
+		while idx_a < list_a.length as i32 {
+			if let Some(val) = list_a.get(idx_a) {
+				result.add(val.clone());
+				idx_a += 1;
+			} else {
+				break;
+			}
+		}
+
+		while idx_b < list_b.length as i32 {
+			if let Some(val) = list_b.get(idx_b) {
+				result.add(val.clone());
+				idx_b += 1;
+			} else {
+				break;
+			}
+		}
+
+		result
 	}
 }
 
